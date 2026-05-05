@@ -7,10 +7,7 @@ import time
 import platform
 from datetime import datetime
 
-
-# ─────────────────────────────────────────────
 #  PLATFORM BEEP
-# ─────────────────────────────────────────────
 if platform.system() == "Windows":
     import winsound
 
@@ -21,10 +18,8 @@ def play_beep():
     else:
         print("\a")
 
-
-# ─────────────────────────────────────────────
 #  CONSTANTS
-# ─────────────────────────────────────────────
+
 DB_PATH = "workflow_tasks.db"
 
 COLORS = {
@@ -62,10 +57,8 @@ STATUS_COLOR = {
     "Done"   : COLORS["green"],
 }
 
-
-# ─────────────────────────────────────────────
 #  DATABASE HELPERS
-# ─────────────────────────────────────────────
+
 def db_connect():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -157,10 +150,8 @@ def parse_due_time(raw):
             continue
     return None
 
-
-# ─────────────────────────────────────────────
 #  ADD TASK WINDOW
-# ─────────────────────────────────────────────
+
 class AddTaskWindow(tk.Toplevel):
 
     def __init__(self, parent, on_save_callback):
@@ -278,10 +269,8 @@ class AddTaskWindow(tk.Toplevel):
         self.destroy()
         messagebox.showinfo("Saved", f"Task '{name}' added successfully!")
 
-
-# ─────────────────────────────────────────────
 #  DETAIL WINDOW
-# ─────────────────────────────────────────────
+
 class DetailWindow(tk.Toplevel):
 
     def __init__(self, parent, task_id):
@@ -382,10 +371,8 @@ class ReminderPopup(tk.Toplevel):
             relief="flat", padx=12, pady=8, cursor="hand2"
         ).pack(pady=16)
 
-
-# ─────────────────────────────────────────────
 #  MAIN APPLICATION
-# ─────────────────────────────────────────────
+
 class App(tk.Tk):
 
     def __init__(self):
@@ -418,10 +405,9 @@ class App(tk.Tk):
 
         # ── Background reminder thread
         threading.Thread(target=self._reminder_loop, daemon=True).start()
-
-    # ════════════════════════════════════════════
+        
     #  SIDEBAR
-    # ════════════════════════════════════════════
+   
     def _make_sidebar(self):
         sb = tk.Frame(self, bg=COLORS["sidebar"], width=240)
         sb.pack(side="left", fill="y")
@@ -479,9 +465,8 @@ class App(tk.Tk):
             font=FONTS["small"], fg=COLORS["border"], bg=COLORS["sidebar"]
         ).pack(side="bottom", pady=16)
 
-    # ════════════════════════════════════════════
     #  MAIN PANEL
-    # ════════════════════════════════════════════
+   
     def _make_main(self):
         main = tk.Frame(self, bg=COLORS["bg"])
         main.pack(side="left", fill="both", expand=True)
@@ -605,9 +590,8 @@ class App(tk.Tk):
         self._ctx.add_command(label="  Mark as Done",  command=self._do_mark)
         self._ctx.add_command(label="  Delete Task",   command=self._do_delete)
 
-    # ════════════════════════════════════════════
     #  TABLE LOGIC
-    # ════════════════════════════════════════════
+  
     def _reload_table(self):
         for item in self._tree.get_children():
             self._tree.delete(item)
@@ -660,9 +644,8 @@ class App(tk.Tk):
             self._tree.selection_set(row)
             self._ctx.tk_popup(event.x_root, event.y_root)
 
-    # ════════════════════════════════════════════
     #  ACTIONS
-    # ════════════════════════════════════════════
+    
     def _open_add(self):
         AddTaskWindow(self, on_save_callback=self._reload_table)
 
@@ -684,17 +667,15 @@ class App(tk.Tk):
                 db_delete(tid)
                 self._reload_table()
 
-    # ════════════════════════════════════════════
     #  CLOCK
-    # ════════════════════════════════════════════
+   
     def _tick(self):
         now = datetime.now().strftime("%a  %d %b %Y   %H:%M:%S")
         self._clock_lbl.config(text=now)
         self.after(1000, self._tick)
 
-    # ════════════════════════════════════════════
     #  REMINDER BACKGROUND THREAD
-    # ════════════════════════════════════════════
+    
     def _reminder_loop(self):
         while True:
             for task in db_due_pending():
@@ -711,10 +692,8 @@ class App(tk.Tk):
         self._reload_table()
         ReminderPopup(self, name)
 
-
-# ─────────────────────────────────────────────
 #  RUN
-# ─────────────────────────────────────────────
+
 if __name__ == "__main__":
     app = App()
     app.mainloop()
